@@ -9,8 +9,8 @@ import com.github.jamies1211.specialdrops.Data.SpecialData.CustomDataBuilder;
 import com.github.jamies1211.specialdrops.Data.SpecialData.ImmutableCustomData;
 import com.google.inject.Inject;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -19,10 +19,11 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -60,7 +61,7 @@ public class SpecialDrops {
 
 	//TODO make function correctly
 	@Listener
-	public void onDropItem (DropItemEvent event) {
+	public void onDropItem (DropItemEvent.Dispense event) {
 		Object rootCause = event.getCause().root();
 
 		if (rootCause instanceof EntitySpawnCause) {
@@ -70,9 +71,14 @@ public class SpecialDrops {
 
 			if (spawningEntityID.equalsIgnoreCase("minecraft:player")) {
 				UUID spawnerUUID = spawningEntity.getUniqueId().get();
-
 				Player player = Sponge.getServer().getPlayer(spawnerUUID).get();
-				entity.getEntity().offer(new CustomData(player.getName()));
+
+				for (Entity droppedEntity : event.getEntities()) {
+					if (droppedEntity instanceof Item) {
+						Item item = (Item) droppedEntity;
+						item.offer(new CustomData(player.getName()));
+					}
+				}
 			}
 		}
 	}
@@ -83,8 +89,9 @@ public class SpecialDrops {
 
 		if  (item.get(CustomData.class).isPresent()) {
 			Optional<String> itemPermissionData = item.get(CustomData.class).get().toContainer().getString(ITEM_PERMISSION_DATA.getQuery());
+			String permission = itemPermissionData.get();
 
-			if (!player.hasPermission(itemPermissionData.get())) {
+			if (!player.hasPermission(permission)) {
 				event.setCancelled(true);
 				player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("You do not have permission to pick up this item."));
 			}
