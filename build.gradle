@@ -1,0 +1,41 @@
+plugins {
+    id "com.qixalite.spongestart" version "1.4.6"
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    //id 'org.spongepowered.plugin' version '0.5.1'
+}
+
+defaultTasks 'build', 'shadowJar'
+
+group = 'io.github.jamies1211.specialdrops'
+version = '1.0.0-1.10.2'
+description = 'Special Drops'
+sourceCompatibility = 1.8
+
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'Sonatype'
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven { url "https://jitpack.io" }
+    maven {
+        name 'sponge'
+        url 'http://repo.spongepowered.org/maven'
+    }
+    maven { url "http://repo.maven.apache.org/maven2" }
+    //maven { url  "http://dl.bintray.com/austinv11/maven" }
+}
+
+spongestart{
+    eula true
+
+    //optional configs
+    spongeForgeBuild '1844'
+    forgeServerFolder 'run'
+}
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:6.0.0-SNAPSHOT'
+}
